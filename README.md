@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -235,6 +239,16 @@
           </div>
 
           <div class="input-group">
+            <label>Reason (required)</label>
+            <textarea id="infraction-reason" placeholder="Explain the reason for this infraction"></textarea>
+          </div>
+
+          <div class="input-group">
+            <label>Notes (required)</label>
+            <textarea id="infraction-notes" placeholder="Any additional notes or context"></textarea>
+          </div>
+
+          <div class="input-group">
             <label>Preview (read-only)</label>
             <textarea id="infraction-preview" readonly></textarea>
           </div>
@@ -265,6 +279,16 @@
           <div class="input-group">
             <label>Issuer ID (will be pinged)</label>
             <input id="promo-issuer-id" type="text" placeholder="e.g. 123456789012345678" />
+          </div>
+
+          <div class="input-group">
+            <label>Reason (required)</label>
+            <textarea id="promo-reason" placeholder="Why is this promotion being given?"></textarea>
+          </div>
+
+          <div class="input-group">
+            <label>Notes (required)</label>
+            <textarea id="promo-notes" placeholder="Any additional notes or context"></textarea>
           </div>
 
           <div class="input-group">
@@ -410,6 +434,8 @@
     const infractionStaffId = document.getElementById("infraction-staff-id");
     const infractionType = document.getElementById("infraction-type");
     const infractionIssuerId = document.getElementById("infraction-issuer-id");
+    const infractionReason = document.getElementById("infraction-reason");
+    const infractionNotes = document.getElementById("infraction-notes");
     const infractionPreview = document.getElementById("infraction-preview");
     const infractionStatus = document.getElementById("infraction-status");
     const infractionSend = document.getElementById("infraction-send");
@@ -417,9 +443,11 @@
     const infractionThumbnail = "https://media.discordapp.net/attachments/1489805815559880937/1489996522757029948/Copilot_20260404_151820.png?ex=69d272e5&is=69d12165&hm=bd99e4014ab6013c80ff0f90071604b7967ec4ef2674b04d457c195c69e02425&=&format=webp&quality=lossless&width=1272&height=848";
 
     function buildInfractionText() {
-      const staffPing = infractionStaffId.value ? `<@${infractionStaffId.value}>` : "@staff";
-      const issuerPing = infractionIssuerId.value ? `<@${infractionIssuerId.value}>` : "@issuer";
+      const staffPing = infractionStaffId.value ? `<@${infractionStaffId.value}>` : "<@staff>";
+      const issuerPing = infractionIssuerId.value ? `<@${infractionIssuerId.value}>` : "<@issuer>";
       const type = infractionType.value || "Infraction";
+      const reason = infractionReason.value || "(no reason provided)";
+      const notes = infractionNotes.value || "(no notes provided)";
 
       return (
         `Dear ${staffPing} Due to your recent actions, you have received an infraction (${type}). ` +
@@ -427,7 +455,9 @@
         `https://discord.com/channels/1489790170059374692/1489805969683648603\n\n` +
         `Staff member: ${staffPing}\n` +
         `Infraction type: ${type}\n` +
-        `Issuer: ${issuerPing}`
+        `Issuer: ${issuerPing}\n` +
+        `Reason: ${reason}\n` +
+        `Notes: ${notes}`
       );
     }
 
@@ -435,7 +465,7 @@
       infractionPreview.value = buildInfractionText();
     }
 
-    [infractionStaffId, infractionType, infractionIssuerId].forEach((el) =>
+    [infractionStaffId, infractionType, infractionIssuerId, infractionReason, infractionNotes].forEach((el) =>
       el.addEventListener("input", updateInfractionPreview)
     );
     updateInfractionPreview();
@@ -443,16 +473,18 @@
     infractionSend.addEventListener("click", async () => {
       const staffId = infractionStaffId.value.trim();
       const issuerId = infractionIssuerId.value.trim();
-      const type = infractionType.value;
+      const reason = infractionReason.value.trim();
+      const notes = infractionNotes.value.trim();
 
-      if (!staffId || !issuerId) {
-        infractionStatus.textContent = "Staff ID and issuer ID are required.";
+      if (!staffId || !issuerId || !reason || !notes) {
+        infractionStatus.textContent = "Staff ID, issuer ID, reason, and notes are required.";
         setTimeout(() => (infractionStatus.textContent = ""), 4000);
         return;
       }
 
       const staffPing = `<@${staffId}>`;
       const issuerPing = `<@${issuerId}>`;
+      const type = infractionType.value;
       const description = buildInfractionText();
 
       infractionStatus.textContent = "Sending...";
@@ -492,6 +524,8 @@
     const promoStaffId = document.getElementById("promo-staff-id");
     const promoRank = document.getElementById("promo-rank");
     const promoIssuerId = document.getElementById("promo-issuer-id");
+    const promoReason = document.getElementById("promo-reason");
+    const promoNotes = document.getElementById("promo-notes");
     const promoPreview = document.getElementById("promo-preview");
     const promoStatus = document.getElementById("promo-status");
     const promoSend = document.getElementById("promo-send");
@@ -499,9 +533,11 @@
     const promoThumbnail = "https://media.discordapp.net/attachments/1489806195165237440/1489996980229771395/Copilot_20260404_151347.png?ex=69d27352&is=69d121d2&hm=f12bc3a3419293f5917a508f6965e74f4575af9857a2f2f58eb258f9889aa0f9&=&format=webp&quality=lossless&width=602&height=401";
 
     function buildPromoText() {
-      const staffPing = promoStaffId.value ? `<@${promoStaffId.value}>` : "@staff";
-      const issuerPing = promoIssuerId.value ? `<@${promoIssuerId.value}>` : "@issuer";
+      const staffPing = promoStaffId.value ? `<@${promoStaffId.value}>` : "<@staff>";
+      const issuerPing = promoIssuerId.value ? `<@${promoIssuerId.value}>` : "<@issuer>";
       const rank = promoRank.value || "<new rank>";
+      const reason = promoReason.value || "(no reason provided)";
+      const notes = promoNotes.value || "(no notes provided)";
 
       return (
         `Congratulations ${staffPing} you have received a promotion for your recent work in our community. ` +
@@ -509,7 +545,9 @@
         `https://discord.com/channels/1489790170059374692/1489805969683648603\n\n` +
         `Staff member: ${staffPing}\n` +
         `New Rank: ${rank}\n` +
-        `Issuer: ${issuerPing}`
+        `Issuer: ${issuerPing}\n` +
+        `Reason: ${reason}\n` +
+        `Notes: ${notes}`
       );
     }
 
@@ -517,7 +555,7 @@
       promoPreview.value = buildPromoText();
     }
 
-    [promoStaffId, promoRank, promoIssuerId].forEach((el) =>
+    [promoStaffId, promoRank, promoIssuerId, promoReason, promoNotes].forEach((el) =>
       el.addEventListener("input", updatePromoPreview)
     );
     updatePromoPreview();
@@ -526,9 +564,11 @@
       const staffId = promoStaffId.value.trim();
       const issuerId = promoIssuerId.value.trim();
       const rank = promoRank.value.trim();
+      const reason = promoReason.value.trim();
+      const notes = promoNotes.value.trim();
 
-      if (!staffId || !issuerId || !rank) {
-        promoStatus.textContent = "Staff ID, new rank, and issuer ID are required.";
+      if (!staffId || !issuerId || !rank || !reason || !notes) {
+        promoStatus.textContent = "Staff ID, new rank, issuer ID, reason, and notes are required.";
         setTimeout(() => (promoStatus.textContent = ""), 4000);
         return;
       }
